@@ -1,53 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>AI assistant host page</title>
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <script src="frontend.js"></script>
 </head>
 
-<style>
-    a.nav-link {
-        color: gray;
-        font-size: 18px;
-        padding: 0;
-    }
-
-    .avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: 2px solid #cf5479;
-        padding: 2px;
-        flex: none;
-    }
-
-    input:focus {
-        outline: 0px !important;
-        box-shadow: none !important;
-    }
-
-    .card-text {
-        border: 2px solid #91cdc9;
-        border-radius: 4px;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        font-size: 14px;
-    }
-
-    footer {
-        font-size: 10px;
-    }
-</style>
-
 <body>
-    <div class="container mt-4">
+    <h1>Piloting sharepoint content here</h1>
+
+    <div class="hidden chatbox mt-4">
         <div class="card mx-auto" style="max-width: 400px">
-            
+
             <div class="card-header">
                 <div class="navbar navbar-expand p-0">
                     <ul class="navbar-nav me-auto align-items-center">
@@ -58,7 +26,7 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
                             <a href="#!" class="nav-link">
-                                <i class="fas fa-window-minimize"></i>
+                                <i id="btn-close" class="fas fa-window-minimize"></i>
                             </a>
                         </li>
                     </ul>
@@ -83,7 +51,7 @@
                     <div class="pe-2">
                         <div>
                             <div class="card card-text d-inline-block p-2 px-3 m-1">
-                                I want to know about the piloting process. 
+                                I want to know about the piloting process.
                                 How can I create a nomination?
                             </div>
                         </div>
@@ -140,9 +108,9 @@
 
             <div class="card-footer w-100 bottom-0 m-0 p-1">
                 <div class="input-group border-1">
-                    <input type="text" class="form-control" placeholder="Enter your text here..." />
+                    <input type="text" class="form-control" id="input" placeholder="Enter your text here..." />
                     <div class="input-group-text bg-transparent">
-                        <button class="btn btn-light text-secondary">
+                        <button id="submit" class="btn btn-light text-secondary">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
@@ -150,7 +118,15 @@
             </div>
         </div>
     </div>
+
+    <div class="overlay hidden"></div>
+    <button id="openBtn" class="btn btn-primary">
+        <i class="fas fa-headset"></i>
+        Open AI assistant
+    </button>
+
 </body>
+
 <footer>
     <a href="https://www.flaticon.com/free-icons/user" title="user icons">User icons created by Freepik - Flaticon</a>
     <br />
