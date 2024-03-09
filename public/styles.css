@@ -90,6 +90,13 @@ button {
     z-index: 2;
 }
 
+.busy-indicator {
+    justify-content: center;
+    display: flex;
+    flex: auto;
+    padding: 1rem;
+}
+
 .hidden {
     display: none;
 }

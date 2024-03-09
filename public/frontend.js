@@ -1,3 +1,5 @@
+const fqdn = "http://localhost:3000";
+
 function createFragmentFromHTML(htmlString) {
     const range = document.createRange();
     range.selectNode(document.body); // Select any existing node as the context
@@ -78,10 +80,34 @@ document.addEventListener("DOMContentLoaded", function () {
         messageContainer.scrollTop = messageContainer.scrollHeight;
     }
 
+    const sendPrompt = function (msg) {
+        return fetch(`${fqdn}/sendPrompt`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8'
+            },
+            body: JSON.stringify({
+                prompt: msg
+            })
+        }).then((response) => response.json()). //
+            catch((err) => { throw new Error(err); });
+    }
+
     const processInput = function () {
+        const busyIndicator = document.querySelector(".busy-indicator");
         const msg = messageInput.value;
         addMessage("user", msg);
         messageInput.value = "";
+        busyIndicator.classList.remove("hidden");
+        sendPrompt(msg). //
+            then((reply) => {
+                busyIndicator.classList.add("hidden");
+                addMessage("bot", reply.response);
+            }). //
+            catch((ex) => {
+                busyIndicator.classList.add("hidden");
+                addMessage("bot", `An error occurred : ${ex}`)
+            });
     }
 
     messageInput.addEventListener("keyup", (event) => {
