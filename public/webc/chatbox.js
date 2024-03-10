@@ -27,7 +27,12 @@ class ChatBox extends HTMLElement {
                     flex: none;
                 }
                 
-                input:focus {
+                #input {
+                    min-height:50px;
+                    max-height:100px;
+                }
+
+                #input:focus {
                     outline: 0px !important;
                     box-shadow: none !important;
                 }
