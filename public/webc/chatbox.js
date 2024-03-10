@@ -22,7 +22,7 @@ class ChatBox extends HTMLElement {
                     width: 50px;
                     height: 50px;
                     border-radius: 50%;
-                    border: 2px solid #cf5479;
+                    border: 2px solid #009999;
                     padding: 2px;
                     flex: none;
                 }
@@ -192,7 +192,7 @@ class ChatBox extends HTMLElement {
                         </div>
                     </div>
                     <div class="position-relative avatar">
-                        <img src="webc/img/user.png" class="img-fluid rounded-circle" alt="" />
+                        <img src="webc/img/account.png" class="img-fluid rounded-circle" alt="" />
                     </div>
                 </div>
             `;
