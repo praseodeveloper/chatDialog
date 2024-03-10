@@ -29,12 +29,20 @@ class ChatBoxBotCard extends HTMLElement {
                 <div class="pe-2">
                     <div>
                         <div class="card card-text d-inline-block p-2 px-3 m-1" style="max-width: ${this.getAttribute("width")}">
-                            <pre class="card-pre"><code>${this.getAttribute("message")}</code></pre>
+                            <pre class="card-pre"><code>${this._replaceURLWithHTMLLinks(this.getAttribute("message"))}</code></pre>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    _replaceURLWithHTMLLinks(text) {
+        // Regular expression to match URLs
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        
+        // Replace each URL with an <a> tag
+        return text.replace(urlRegex, "<a href='$1'>$1</a>");
     }
 }
 
