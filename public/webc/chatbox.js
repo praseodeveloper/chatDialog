@@ -1,5 +1,5 @@
 class ChatBox extends HTMLElement {
-    static observedAttributes = ["width", "height"];
+    static observedAttributes = ["width", "height", "title"];
 
     constructor() {
         super();
@@ -16,7 +16,7 @@ class ChatBox extends HTMLElement {
                     <div class="navbar navbar-expand p-0">
                         <ul class="navbar-nav me-auto align-items-center">
                             <li class="nav-item">
-                                <a href="#!" class="nav-link text-dark">Piloting AI Assistant</a>
+                                <a href="#!" class="nav-link text-dark">${this.getAttribute("title") ?? "Chat assistant"}</a>
                             </li>
                         </ul>
                         <ul class="navbar-nav ms-auto">
@@ -73,6 +73,7 @@ class ChatBox extends HTMLElement {
         );
         const box = this.shadowRoot.querySelector(".card.mx-auto");
         const msgCards = this.shadowRoot.querySelectorAll(".card-text");
+        const cardHeader = this.shadowRoot.querySelector(".card-header a");
         if (name === "height") {
             box.style.height = newValue;
         } else if (name === "width") {
@@ -80,6 +81,8 @@ class ChatBox extends HTMLElement {
             msgCards.forEach(msgCard => {
                 msgCard.style.maxWidth = `calc(${newValue} - 100px)`;
             });
+        } else if (name === "title") {
+            cardHeader.textContent = newValue;
         }
     }
 
