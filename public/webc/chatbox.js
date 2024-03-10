@@ -3,7 +3,7 @@ class ChatBox extends HTMLElement {
 
     constructor() {
         super();
-        
+
         this.attachShadow({ mode: 'open' });
         this.shadowRoot.innerHTML = `
             <style>
@@ -41,7 +41,6 @@ class ChatBox extends HTMLElement {
                     border-radius: 4px;
                     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
                     font-size: 14px;
-                    max-width: 500px;
                 }
                 
                 .btn {
@@ -58,8 +57,7 @@ class ChatBox extends HTMLElement {
                 .busy-indicator {
                     justify-content: center;
                     display: flex;
-                    flex: auto;
-                    padding: 1rem;
+                    padding-bottom: 1rem;
                 }
                 
                 .hidden {
@@ -72,7 +70,7 @@ class ChatBox extends HTMLElement {
                 }
 
                 .card-pre code {
-                    font-size : 14px;
+                    font-size : 12px;
                 }
             </style>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
@@ -106,7 +104,7 @@ class ChatBox extends HTMLElement {
     
                 <div class="card-footer w-100 bottom-0 m-0 p-1">
                     <div class="input-group border-1">
-                        <input type="text" class="form-control" id="input" placeholder="Enter your text here..." />
+                        <textarea class="form-control" id="input" cols="40" rows="3" placeholder="Enter your query here..."></textarea>
                         <div class="input-group-text bg-transparent">
                             <button id="submit" class="btn btn-light text-secondary">
                                 <i class="fas fa-paper-plane"></i>
@@ -119,9 +117,10 @@ class ChatBox extends HTMLElement {
 
         // Event handlers
         const messageInput = this.shadowRoot.querySelector("#input");
-        messageInput.addEventListener("keyup", (event) => {
-            if (event.key === "Enter") {
+        messageInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
                 this.processInput();
+                event.preventDefault(); // To prevent cursor movement to next line
             }
         });
 
@@ -136,19 +135,19 @@ class ChatBox extends HTMLElement {
 
     attributeChangedCallback(name, oldValue, newValue) {
         console.log(
-          `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
+            `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
         );
         const box = this.shadowRoot.querySelector(".card.mx-auto");
         const msgCards = this.shadowRoot.querySelectorAll(".card-text");
-        if(name === "height") {
+        if (name === "height") {
             box.style.height = newValue;
-        } else if(name === "width") {
+        } else if (name === "width") {
             box.style.width = newValue;
-            msgCards.forEach(msgCard => { 
-                msgCard.style.maxWidth = `calc(${newValue} - 100px)`; 
+            msgCards.forEach(msgCard => {
+                msgCard.style.maxWidth = `calc(${newValue} - 100px)`;
             });
         }
-      }
+    }
 
     closeChatbox() {
         this.classList.add("hidden");
@@ -156,7 +155,7 @@ class ChatBox extends HTMLElement {
             bubbles: true, // Allow event to bubble up the DOM tree
             composed: true, // Allow event to cross shadow DOM boundaries
             detail: { id: this.id }
-          });
+        });
         this.shadowRoot.dispatchEvent(customEvent);
     };
 
@@ -187,7 +186,7 @@ class ChatBox extends HTMLElement {
                 <div class="d-flex align-items-baseline text-end justify-content-end mb-4">
                     <div class="pe-2">
                         <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">
+                            <div class="card card-text d-inline-block p-2 px-3 m-1" style="max-width: calc(${this.getAttribute("width") ?? "600px"} - 100px)">
                                 <pre class="card-pre"><code>${text}</code></pre>
                             </div>
                         </div>
@@ -205,7 +204,7 @@ class ChatBox extends HTMLElement {
                     </div>
                     <div class="pe-2">
                         <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">
+                            <div class="card card-text d-inline-block p-2 px-3 m-1" style="max-width: calc(${this.getAttribute("width") ?? "600px"} - 100px)">
                                 <pre class="card-pre"><code>${text}</code></pre>
                             </div>
                         </div>
