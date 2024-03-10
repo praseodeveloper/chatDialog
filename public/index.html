@@ -8,120 +8,17 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <script src="frontend.js"></script>
+    <script src="webc/chatbox.js"></script>
 </head>
 
 <body>
     <h1>Piloting sharepoint content here</h1>
 
-    <div class="hidden chatbox mt-4">
-        <div class="card mx-auto" style="max-width: 400px">
-
-            <div class="card-header">
-                <div class="navbar navbar-expand p-0">
-                    <ul class="navbar-nav me-auto align-items-center">
-                        <li class="nav-item">
-                            <a href="#!" class="nav-link text-dark">Piloting AI Assistant</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="#!" class="nav-link">
-                                <i id="btn-close" class="fas fa-window-minimize"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card-body p-3" style="height: 500px; overflow: auto">
-                <div class="d-flex align-items-baseline mb-4">
-                    <div class="position-relative avatar">
-                        <img src="assistant.png" class="img-fluid rounded-circle" alt="" />
-                    </div>
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">
-                                Hi, how may I help you?
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-baseline text-end justify-content-end mb-4">
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">
-                                I want to know about the piloting process.
-                                How can I create a nomination?
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-relative avatar">
-                        <img src="user.png" class="img-fluid rounded-circle" alt="" />
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-baseline mb-4">
-                    <div class="position-relative avatar">
-                        <img src="assistant.png" class="img-fluid rounded-circle" alt="" />
-                    </div>
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">
-                                Please refer to the app link in the wiki...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-baseline text-end justify-content-end mb-4">
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1">
-                                Cool
-                            </div>
-                        </div>
-                        <div>
-                            <div class="card card-text p-2 px-3 m-1 mb-5">
-                                <div class="row align-items-center">
-                                    <div class="col-1">
-                                        <a href=""><i class="fas fa-play"></i></a>
-                                    </div>
-                                    <div class="col">
-                                        <div class="progress" style="width: 100px; height: 4px">
-                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 35%"
-                                                aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="small fw-bold">0:34</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-relative avatar">
-                        <img src="user.png" class="img-fluid rounded-circle" alt="" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="busy-indicator hidden">
-                <i class="fas fa-spinner fa-pulse"></i>
-            </div>
-
-            <div class="card-footer w-100 bottom-0 m-0 p-1">
-                <div class="input-group border-1">
-                    <input type="text" class="form-control" id="input" placeholder="Enter your text here..." />
-                    <div class="input-group-text bg-transparent">
-                        <button id="submit" class="btn btn-light text-secondary">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <chat-box id="myChat" 
+        class="hidden chatbox" 
+        endpoint="http://localhost:3000"
+        width="500px"
+        height="600px" ></chat-box>
 
     <div class="overlay hidden"></div>
     <button id="openBtn" class="btn btn-primary">
