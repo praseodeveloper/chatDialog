@@ -7,9 +7,10 @@ class ChatBox extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         this.shadowRoot.innerHTML = `
             <link rel="stylesheet" href="webc/chatbox.css" />
+            <link rel="stylesheet" href="webc/chatboxcard.css" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-            
+
             <div class="card mx-auto">
     
                 <div class="card-header">
@@ -30,6 +31,7 @@ class ChatBox extends HTMLElement {
                 </div>
     
                 <div class="card-body p-3 bg-light bg-gradient">
+                    <chat-box-bot-card message="Hi! How may I help you today?"></chat-box-bot-card>
                 </div>
     
                 <div class="busy-indicator hidden">
@@ -72,14 +74,14 @@ class ChatBox extends HTMLElement {
             `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
         );
         const box = this.shadowRoot.querySelector(".card.mx-auto");
-        const msgCards = this.shadowRoot.querySelectorAll(".card-text");
+        const msgCards = this.shadowRoot.querySelectorAll("chat-box-user-card, chat-box-bot-card");
         const cardHeader = this.shadowRoot.querySelector(".card-header a");
         if (name === "height") {
             box.style.height = newValue;
         } else if (name === "width") {
             box.style.width = newValue;
             msgCards.forEach(msgCard => {
-                msgCard.style.maxWidth = `calc(${newValue} - 100px)`;
+                msgCard.setAttribute("width", `calc(${newValue} - 100px)`);
             });
         } else if (name === "title") {
             cardHeader.textContent = newValue;
@@ -89,7 +91,7 @@ class ChatBox extends HTMLElement {
     closeChatbox() {
         this.classList.add("hidden");
         const customEvent = new CustomEvent('chatbox-closed-event', {
-            bubbles: true, // Allow event to bubble up the DOM tree
+            bubbles: false, // Disable event to bubble up the DOM tree
             composed: true, // Allow event to cross shadow DOM boundaries
             detail: { id: this.id }
         });
@@ -117,44 +119,22 @@ class ChatBox extends HTMLElement {
     }
 
     addMessage(sender, text) {
-        let newMessage;
+        let messageElement;
         if (sender === "user") {
-            newMessage = `
-                <div class="d-flex align-items-baseline text-end justify-content-end mb-4">
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1" style="max-width: calc(${this.getAttribute("width") ?? "600px"} - 100px)">
-                                <pre class="card-pre"><code>${text}</code></pre>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="position-relative avatar">
-                        <img src="webc/img/account.png" class="img-fluid rounded-circle" alt="" />
-                    </div>
-                </div>
-            `;
+            messageElement = document.createElement('chat-box-user-card');
+
         } else if (sender === "bot") {
-            newMessage = `
-                <div class="d-flex align-items-baseline mb-4">
-                    <div class="position-relative avatar">
-                        <img src="webc/img/assistant.png" class="img-fluid rounded-circle" alt="" />
-                    </div>
-                    <div class="pe-2">
-                        <div>
-                            <div class="card card-text d-inline-block p-2 px-3 m-1" style="max-width: calc(${this.getAttribute("width") ?? "600px"} - 100px)">
-                                <pre class="card-pre"><code>${text}</code></pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+            messageElement = document.createElement('chat-box-bot-card');
         }
 
-        const messageElement = document.createElement("div");
-        messageElement.innerHTML = newMessage;
-        const messageContainer = this.shadowRoot.querySelector(".card-body");
-        messageContainer.appendChild(messageElement);
-        messageContainer.scrollTop = messageContainer.scrollHeight;
+        if (messageElement) {
+            const chatboxWidth = this.getAttribute("width") ?? "600px";
+            messageElement.setAttribute("width", `calc(${chatboxWidth} - 100px)`);
+            messageElement.setAttribute("message", text);
+            const messageContainer = this.shadowRoot.querySelector(".card-body");
+            messageContainer.appendChild(messageElement);
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
     }
 
     sendPrompt(msg) {

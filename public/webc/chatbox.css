@@ -9,15 +9,6 @@ a.nav-link {
     padding: 0;
 }
 
-.avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 2px solid #009999;
-    padding: 2px;
-    flex: none;
-}
-
 #input {
     min-height:50px;
     max-height:100px;
@@ -30,13 +21,6 @@ a.nav-link {
 
 .card-body {
     overflow: auto;
-}
-
-.card-text {
-    border: 2px solid #91cdc9;
-    border-radius: 4px;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 14px;
 }
 
 .btn {
@@ -58,13 +42,4 @@ a.nav-link {
 
 .hidden {
     display: none;
-}
-
-.card-pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.card-pre code {
-    font-size : 12px;
 }
