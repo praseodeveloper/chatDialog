@@ -6,78 +6,7 @@ class ChatBox extends HTMLElement {
 
         this.attachShadow({ mode: 'open' });
         this.shadowRoot.innerHTML = `
-            <style>
-                .card.mx-auto {
-                    height: 600px;
-                    width: 600px;
-                }
-
-                a.nav-link {
-                    color: gray;
-                    font-size: 18px;
-                    padding: 0;
-                }
-                
-                .avatar {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 50%;
-                    border: 2px solid #009999;
-                    padding: 2px;
-                    flex: none;
-                }
-                
-                #input {
-                    min-height:50px;
-                    max-height:100px;
-                }
-
-                #input:focus {
-                    outline: 0px !important;
-                    box-shadow: none !important;
-                }
-
-                .card-body {
-                    overflow: auto;
-                }
-                
-                .card-text {
-                    border: 2px solid #91cdc9;
-                    border-radius: 4px;
-                    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-                    font-size: 14px;
-                }
-                
-                .btn {
-                    display: inline-block;
-                    padding: 0.8rem 1.4rem;
-                    font-weight: 700;
-                    background-color: black;
-                    color: white;
-                    border-radius: 5px;
-                    text-align: center;
-                    font-size: 1em;
-                }
-                
-                .busy-indicator {
-                    justify-content: center;
-                    display: flex;
-                    padding-bottom: 1rem;
-                }
-                
-                .hidden {
-                    display: none;
-                }
-
-                .card-pre {
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                }
-
-                .card-pre code {
-                    font-size : 12px;
-                }
-            </style>
+            <link rel="stylesheet" href="webc/chatbox.css" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
             
@@ -100,7 +29,7 @@ class ChatBox extends HTMLElement {
                     </div>
                 </div>
     
-                <div class="card-body p-3">
+                <div class="card-body p-3 bg-light bg-gradient">
                 </div>
     
                 <div class="busy-indicator hidden">
