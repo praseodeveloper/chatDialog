@@ -1,5 +1,5 @@
 class ChatBox extends HTMLElement {
-    static observedAttributes = ["width", "height", "title"];
+    static observedAttributes = ["width", "height", "headertext"];
 
     constructor() {
         super();
@@ -16,13 +16,11 @@ class ChatBox extends HTMLElement {
                 <div class="card-header">
                     <div class="navbar navbar-expand p-0">
                         <ul class="navbar-nav me-auto align-items-center">
-                            <li class="nav-item">
-                                <a href="#!" class="nav-link text-dark">${this.getAttribute("title") ?? "Chat assistant"}</a>
-                            </li>
+                            <li class="nav-item text-dark">${this.getAttribute("headertext") ?? "Chat assistant"}</li>
                         </ul>
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
-                                <a href="#!" class="nav-link">
+                                <a class="nav-link">
                                     <i id="btn-close" class="fas fa-window-minimize"></i>
                                 </a>
                             </li>
@@ -55,18 +53,18 @@ class ChatBox extends HTMLElement {
         const messageInput = this.shadowRoot.querySelector("#input");
         messageInput.addEventListener("keydown", (event) => {
             if (event.key === "Enter" && !event.shiftKey) {
-                this.processInput();
+                this._processInput();
                 event.preventDefault(); // To prevent cursor movement to next line
             }
         });
 
         const submitBtn = this.shadowRoot.querySelector("#submit");
         submitBtn.addEventListener("click", () => {
-            this.processInput();
+            this._processInput();
         });
 
         const closeChatboxBtn = this.shadowRoot.querySelector("#btn-close");
-        closeChatboxBtn.addEventListener("click", this.closeChatbox.bind(this));
+        closeChatboxBtn.addEventListener("click", this._closeChatbox.bind(this));
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
@@ -75,7 +73,7 @@ class ChatBox extends HTMLElement {
         );
         const box = this.shadowRoot.querySelector(".card.mx-auto");
         const msgCards = this.shadowRoot.querySelectorAll("chat-box-user-card, chat-box-bot-card");
-        const cardHeader = this.shadowRoot.querySelector(".card-header a");
+        const cardHeader = this.shadowRoot.querySelector(".card-header li");
         if (name === "height") {
             box.style.height = newValue;
         } else if (name === "width") {
@@ -83,38 +81,8 @@ class ChatBox extends HTMLElement {
             msgCards.forEach(msgCard => {
                 msgCard.setAttribute("width", `calc(${newValue} - 100px)`);
             });
-        } else if (name === "title") {
+        } else if (name === "headertext") {
             cardHeader.textContent = newValue;
-        }
-    }
-
-    closeChatbox() {
-        this.classList.add("hidden");
-        const customEvent = new CustomEvent('chatbox-closed-event', {
-            bubbles: false, // Disable event to bubble up the DOM tree
-            composed: true, // Allow event to cross shadow DOM boundaries
-            detail: { id: this.id }
-        });
-        this.shadowRoot.dispatchEvent(customEvent);
-    };
-
-    processInput() {
-        const messageInput = this.shadowRoot.querySelector("#input");
-        const busyIndicator = this.shadowRoot.querySelector(".busy-indicator");
-        const msg = messageInput.value;
-        if (msg) {
-            this.addMessage("user", msg);
-            messageInput.value = "";
-            busyIndicator.classList.remove("hidden");
-            this.sendPrompt(msg). //
-                then((reply) => {
-                    busyIndicator.classList.add("hidden");
-                    this.addMessage("bot", reply.response);
-                }). //
-                catch((ex) => {
-                    busyIndicator.classList.add("hidden");
-                    this.addMessage("bot", `An error occurred : ${ex}`);
-                });
         }
     }
 
@@ -122,9 +90,14 @@ class ChatBox extends HTMLElement {
         let messageElement;
         if (sender === "user") {
             messageElement = document.createElement('chat-box-user-card');
+            this.lastUserMessage = text;
 
         } else if (sender === "bot") {
             messageElement = document.createElement('chat-box-bot-card');
+            messageElement.addEventListener("chatboxbotcard-dislike-event", (evt) => {
+                console.log(`Last user message : ${this.lastUserMessage}`);
+                console.log(`Last bot reply : ${evt.detail.reply}`);
+            });
         }
 
         if (messageElement) {
@@ -137,7 +110,37 @@ class ChatBox extends HTMLElement {
         }
     }
 
-    sendPrompt(msg) {
+    _closeChatbox() {
+        this.classList.add("hidden");
+        const customEvent = new CustomEvent('chatbox-closed-event', {
+            bubbles: false, // Disable event to bubble up the DOM tree
+            composed: true, // Allow event to cross shadow DOM boundaries
+            detail: { id: this.id }
+        });
+        this.shadowRoot.dispatchEvent(customEvent);
+    };
+
+    _processInput() {
+        const messageInput = this.shadowRoot.querySelector("#input");
+        const busyIndicator = this.shadowRoot.querySelector(".busy-indicator");
+        const msg = messageInput.value;
+        if (msg) {
+            this.addMessage("user", msg);
+            messageInput.value = "";
+            busyIndicator.classList.remove("hidden");
+            this._sendPrompt(msg). //
+                then((reply) => {
+                    busyIndicator.classList.add("hidden");
+                    this.addMessage("bot", reply.response);
+                }). //
+                catch((ex) => {
+                    busyIndicator.classList.add("hidden");
+                    this.addMessage("bot", `An error occurred : ${ex}`);
+                });
+        }
+    }
+
+    _sendPrompt(msg) {
         const fqdn = this.getAttribute("endpoint");
         return fetch(`${fqdn}/sendPrompt`, {
             method: 'POST',

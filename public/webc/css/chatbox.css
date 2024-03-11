@@ -1,3 +1,4 @@
+/* Default chatbox dimensions */
 .card.mx-auto {
     height: 600px;
     width: 600px;
@@ -10,8 +11,8 @@ a.nav-link {
 }
 
 #input {
-    min-height:50px;
-    max-height:100px;
+    min-height: 50px;
+    max-height: 100px;
 }
 
 #input:focus {
