@@ -6,8 +6,8 @@ class ChatBox extends HTMLElement {
 
         this.attachShadow({ mode: 'open' });
         this.shadowRoot.innerHTML = `
-            <link rel="stylesheet" href="webc/chatbox.css" />
-            <link rel="stylesheet" href="webc/chatboxcard.css" />
+            <link rel="stylesheet" href="webc/css/chatbox.css" />
+            <link rel="stylesheet" href="webc/css/chatboxcard.css" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 
