@@ -1,5 +1,5 @@
 class ChatBoxBotCard extends HTMLElement {
-    static observedAttributes = ["width", "message", "hideFeedback"];
+    static observedAttributes = ["width", "message", "hidefeedback"];
 
     constructor() {
         super();
@@ -18,7 +18,7 @@ class ChatBoxBotCard extends HTMLElement {
                 msgCard.style.maxWidth = newValue;
             } else if (name === "message") {
                 content.textContent = newValue;
-            } else if(name === "hideFeedback") {
+            } else if(name === "hidefeedback") {
                this._showHideFeedback(newValue);
             }
         }
@@ -44,7 +44,7 @@ class ChatBoxBotCard extends HTMLElement {
             </div>
         `;
 
-        this._showHideFeedback(this.getAttribute("hideFeedback"));
+        this._showHideFeedback(this.getAttribute("hidefeedback"));
 
         const likeBtn = this.querySelector(".like-btn");
         likeBtn.addEventListener("click", this.onLikeBtnPress);

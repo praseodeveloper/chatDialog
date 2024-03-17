@@ -29,7 +29,7 @@ class ChatBox extends HTMLElement {
                 </div>
     
                 <div class="card-body p-3 bg-light bg-gradient">
-                    <chat-box-bot-card message="Hi! How may I help you today?" hideFeedback="true"></chat-box-bot-card>
+                    <chat-box-bot-card message="Hi! How may I help you today?" hidefeedback="true"></chat-box-bot-card>
                 </div>
     
                 <div class="busy-indicator hidden">
