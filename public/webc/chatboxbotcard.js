@@ -1,5 +1,5 @@
 class ChatBoxBotCard extends HTMLElement {
-    static observedAttributes = ["width", "message"];
+    static observedAttributes = ["width", "message", "hideFeedback"];
 
     constructor() {
         super();
@@ -18,6 +18,8 @@ class ChatBoxBotCard extends HTMLElement {
                 msgCard.style.maxWidth = newValue;
             } else if (name === "message") {
                 content.textContent = newValue;
+            } else if(name === "hideFeedback") {
+               this._showHideFeedback(newValue);
             }
         }
     }
@@ -42,6 +44,8 @@ class ChatBoxBotCard extends HTMLElement {
             </div>
         `;
 
+        this._showHideFeedback(this.getAttribute("hideFeedback"));
+
         const likeBtn = this.querySelector(".like-btn");
         likeBtn.addEventListener("click", this.onLikeBtnPress);
 
@@ -57,8 +61,17 @@ class ChatBoxBotCard extends HTMLElement {
         dislikeBtn.removeEventListener("click", this.onDislikeBtnPress);
     }
 
+    _showHideFeedback(bValue) {
+        const feedbackContainer = this.querySelector('.card-btn-container');
+        if(bValue) {
+            feedbackContainer.classList.add("hidden");
+        } else {
+            feedbackContainer.classList.remove("hidden");
+        } 
+    }
+
     _likeReply() {
-        // alert("Thank you for your feedback for : " + this.getAttribute("message"));
+        alert("Thank you for your feedback for : " + this.getAttribute("message"));
     }
 
     _dislikeReply() {
@@ -79,7 +92,7 @@ class ChatBoxBotCard extends HTMLElement {
         const urlRegex = /(https?:\/\/[^\s]+([^\. ]+))/g;
 
         // Replace each URL with an <a> tag
-        return text.replace(urlRegex, "<a href='$1'>link</a>");
+        return text.replace(urlRegex, "<a href='$1' target='_blank'>link</a>");
     }
 }
 
