@@ -7,24 +7,15 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <script src="frontend.js"></script>
     <script src="webc/chatbox.js"></script>
     <script src="webc/chatboxusercard.js"></script>
     <script src="webc/chatboxbotcard.js"></script>
 </head>
 
 <body>
-    <h1>Main page content here</h1>
-
-    <chat-box id="myChat" class="hidden chatbox" endpoint="http://localhost:3000" width="800px" height="600px"
-        headertext="Piloting AI Assistant"></chat-box>
-
-    <div class="overlay hidden"></div>
-    <button id="openBtn" class="btn btn-primary">
-        <i class="fas fa-headset"></i>
-        Open AI assistant
-    </button>
-
+    <div display="flex">
+        <chat-box id="myChat" width="90vw" height="90vh" headertext="Ollama assistant"></chat-box>
+    </div>
 </body>
 
 <footer>

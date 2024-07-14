@@ -141,8 +141,7 @@ class ChatBox extends HTMLElement {
     }
 
     _sendPrompt(msg) {
-        const fqdn = this.getAttribute("endpoint");
-        return fetch(`${fqdn}/sendPrompt`, {
+        return fetch(`/sendPrompt`, {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
