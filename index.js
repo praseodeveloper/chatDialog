@@ -10,9 +10,13 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "public/chatPage.html"));
 });
 
-// ToDo : Provide API to reset the conversation
-// Currently, it requires a server restart
-const messages = [];
+app.post("/reset", function(req, res) {
+ messages.splice(1); // Remove everything except system message
+ res.json({ "response": "Conversation has been cleared" });
+});
+
+// To stay within token limit for a decent conversation length
+const messages = [{ role: 'system', content: "Generate a response in less than 100 words always." }];
 
 app.post("/sendPrompt", function (req, res) {
   messages.push({ role: 'user', content: req?.body?.prompt });
@@ -22,7 +26,7 @@ app.post("/sendPrompt", function (req, res) {
       'Content-type': 'application/json'
     },
     body: JSON.stringify({
-      model: "llama3",
+      model: "llama3.1",
       messages: messages,
       stream: false
     })

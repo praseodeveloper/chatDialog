@@ -38,12 +38,15 @@ class ChatBox extends HTMLElement {
     
                 <div class="card-footer w-100 bottom-0 m-0 p-1">
                     <div class="input-group border-1">
-                        <textarea class="form-control" id="input" cols="40" rows="3" placeholder="Enter your query here..."></textarea>
-                        <div class="input-group-text bg-transparent">
-                            <button id="submit" class="btn btn-light text-secondary">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
+                        <button id="reset" width="4rem" class="btn btn-danger text-secondary">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    
+                        <textarea class="form-control" id="input" cols="40" rows="2" placeholder="Enter your query here..."></textarea>
+                        
+                        <button id="submit" width="4rem" class="btn btn-light text-secondary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -56,6 +59,11 @@ class ChatBox extends HTMLElement {
                 this._processInput();
                 event.preventDefault(); // To prevent cursor movement to next line
             }
+        });
+
+        const resetBtn = this.shadowRoot.querySelector("#reset");
+        resetBtn.addEventListener("click", () => {
+            this._processReset();
         });
 
         const submitBtn = this.shadowRoot.querySelector("#submit");
@@ -110,6 +118,11 @@ class ChatBox extends HTMLElement {
         }
     }
 
+    clearMessages() {
+        const messageContainer = this.shadowRoot.querySelector(".card-body");
+        messageContainer.replaceChildren([]);
+    }
+
     _closeChatbox() {
         this.classList.add("hidden");
         const customEvent = new CustomEvent('chatbox-closed-event', {
@@ -119,6 +132,21 @@ class ChatBox extends HTMLElement {
         });
         this.shadowRoot.dispatchEvent(customEvent);
     };
+
+    _processReset() {
+        const busyIndicator = this.shadowRoot.querySelector(".busy-indicator");
+        busyIndicator.classList.remove("hidden");
+        this._sendReset(). //
+            then((reply) => {
+                busyIndicator.classList.add("hidden");
+                this.clearMessages();
+                this.addMessage("bot", reply.response);
+            }). //
+            catch((ex) => {
+                busyIndicator.classList.add("hidden");
+                this.addMessage("bot", `An error occurred : ${ex}`);
+            });
+    }
 
     _processInput() {
         const messageInput = this.shadowRoot.querySelector("#input");
@@ -138,6 +166,16 @@ class ChatBox extends HTMLElement {
                     this.addMessage("bot", `An error occurred : ${ex}`);
                 });
         }
+    }
+
+    _sendReset() {
+        return fetch(`/reset`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8'
+            }
+        }).then((response) => response.json()). //
+            catch((err) => { throw new Error(err); });
     }
 
     _sendPrompt(msg) {
