@@ -22,7 +22,7 @@ class ChatBoxUserCard extends HTMLElement {
 
     connectedCallback() {
         this.innerHTML = `
-            <div class="d-flex align-items-baseline text-end justify-content-end mb-4">
+            <div class="d-flex align-items-center text-end justify-content-end mb-4">
                 <div class="pe-2">
                     <div>
                         <div class="card card-text d-inline-block p-2 px-3 m-1" style="max-width: ${this.getAttribute("width")}">

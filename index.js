@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const path = require('path')
+const ollama = require('ollama');
 app.use(express.json());
 const port = 3000;
 
@@ -20,18 +21,13 @@ const messages = [{ role: 'system', content: "Generate a response in less than 1
 
 app.post("/sendPrompt", function (req, res) {
   messages.push({ role: 'user', content: req?.body?.prompt });
-  fetch(`http://localhost:11434/api/chat`, {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: "llama3.1",
-      messages: messages,
-      stream: false
-    })
-  }).then(response => response.json())
-    .then(data => {
+
+  const oOllama = new ollama.Ollama({ host: 'http://localhost:11434' });
+  const oResponse = oOllama.chat({
+    model: 'llama3',
+    messages: messages,
+    stream: false
+  }).then(data => {
       console.log(data);
       messages.push(data.message);
       res.json({ "response": data.message?.content });

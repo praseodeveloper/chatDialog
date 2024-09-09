@@ -26,7 +26,7 @@ class ChatBoxBotCard extends HTMLElement {
 
     connectedCallback() {
         this.innerHTML = `
-            <div class="d-flex align-items-baseline mb-4">
+            <div class="d-flex align-items-center mb-4">
                 <div class="position-relative avatar">
                     <img src="webc/img/assistant.png" class="img-fluid rounded-circle" alt="" />
                 </div>
