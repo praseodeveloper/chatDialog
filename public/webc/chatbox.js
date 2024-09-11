@@ -1,11 +1,12 @@
 class ChatBox extends HTMLElement {
-    static observedAttributes = ["width", "height", "headertext"];
+  static observedAttributes = ["width", "height", "headertext", "showminimizebutton"];
 
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        this.attachShadow({ mode: 'open' });
-        this.shadowRoot.innerHTML = `
+    this.attachShadow({ mode: 'open' });
+    const minimizeBtnDisplayStyle = `display:${this._calculateDisplayStyle(this.getAttribute("showminimizebutton"))}`;
+    this.shadowRoot.innerHTML = `
             <link rel="stylesheet" href="webc/css/chatbox.css" />
             <link rel="stylesheet" href="webc/css/chatboxcard.css" />
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
@@ -21,7 +22,7 @@ class ChatBox extends HTMLElement {
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
                                 <a class="nav-link">
-                                    <i id="btn-close" class="fas fa-window-minimize"></i>
+                                    <i id="btn-close" style=${minimizeBtnDisplayStyle} class="fas fa-window-minimize"></i>
                                 </a>
                             </li>
                         </ul>
@@ -52,144 +53,151 @@ class ChatBox extends HTMLElement {
             </div>
         `;
 
-        // Event handlers
-        const messageInput = this.shadowRoot.querySelector("#input");
-        messageInput.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-                this._processInput();
-                event.preventDefault(); // To prevent cursor movement to next line
-            }
+    // Event handlers
+    const messageInput = this.shadowRoot.querySelector("#input");
+    messageInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        this._processInput();
+        event.preventDefault(); // To prevent cursor movement to next line
+      }
+    });
+
+    const resetBtn = this.shadowRoot.querySelector("#reset");
+    resetBtn.addEventListener("click", () => {
+      this._processReset();
+    });
+
+    const submitBtn = this.shadowRoot.querySelector("#submit");
+    submitBtn.addEventListener("click", () => {
+      this._processInput();
+    });
+
+    const closeChatboxBtn = this.shadowRoot.querySelector("#btn-close");
+    closeChatboxBtn.addEventListener("click", this._closeChatbox.bind(this));
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    console.log(
+      `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
+    );
+    const box = this.shadowRoot.querySelector(".card.mx-auto");
+    const msgCards = this.shadowRoot.querySelectorAll("chat-box-user-card, chat-box-bot-card");
+    const cardHeader = this.shadowRoot.querySelector(".card-header li");
+    if (name === "height") {
+      box.style.height = newValue;
+    } else if (name === "width") {
+      box.style.width = newValue;
+      msgCards.forEach(msgCard => {
+        msgCard.setAttribute("width", `calc(${newValue} - 100px)`);
+      });
+    } else if (name === "headertext") {
+      cardHeader.textContent = newValue;
+    } else if(name === "showminimizebutton") {
+      const closeChatboxBtn = this.shadowRoot.querySelector("#btn-close");
+      closeChatboxBtn.style.display = this._calculateDisplayStyle(newValue);
+    }
+  }
+
+  addMessage(sender, text) {
+    let messageElement;
+    if (sender === "user") {
+      messageElement = document.createElement('chat-box-user-card');
+      this.lastUserMessage = text;
+
+    } else if (sender === "bot") {
+      messageElement = document.createElement('chat-box-bot-card');
+      messageElement.addEventListener("chatboxbotcard-dislike-event", (evt) => {
+        console.log(`Last user message : ${this.lastUserMessage}`);
+        console.log(`Last bot reply : ${evt.detail.reply}`);
+      });
+    }
+
+    if (messageElement) {
+      const chatboxWidth = this.getAttribute("width") ?? "600px";
+      messageElement.setAttribute("width", `calc(${chatboxWidth} - 100px)`);
+      messageElement.setAttribute("message", text);
+      const messageContainer = this.shadowRoot.querySelector(".card-body");
+      messageContainer.appendChild(messageElement);
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+  }
+
+  clearMessages() {
+    const messageContainer = this.shadowRoot.querySelector(".card-body");
+    messageContainer.replaceChildren([]);
+  }
+
+  _calculateDisplayStyle(isVisible) {
+    return (isVisible === "true") ? "block" : "none";
+  }
+
+  _closeChatbox() {
+    this.classList.add("hidden");
+    const customEvent = new CustomEvent('chatbox-closed-event', {
+      bubbles: false, // Disable event to bubble up the DOM tree
+      composed: true, // Allow event to cross shadow DOM boundaries
+      detail: { id: this.id }
+    });
+    this.shadowRoot.dispatchEvent(customEvent);
+  };
+
+  _processReset() {
+    const busyIndicator = this.shadowRoot.querySelector(".busy-indicator");
+    busyIndicator.classList.remove("hidden");
+    this._sendReset(). //
+      then((reply) => {
+        busyIndicator.classList.add("hidden");
+        this.clearMessages();
+        this.addMessage("bot", reply.response);
+      }). //
+      catch((ex) => {
+        busyIndicator.classList.add("hidden");
+        this.addMessage("bot", `An error occurred : ${ex}`);
+      });
+  }
+
+  _processInput() {
+    const messageInput = this.shadowRoot.querySelector("#input");
+    const busyIndicator = this.shadowRoot.querySelector(".busy-indicator");
+    const msg = messageInput.value;
+    if (msg) {
+      this.addMessage("user", msg);
+      messageInput.value = "";
+      busyIndicator.classList.remove("hidden");
+      this._sendPrompt(msg). //
+        then((reply) => {
+          busyIndicator.classList.add("hidden");
+          this.addMessage("bot", reply.response);
+        }). //
+        catch((ex) => {
+          busyIndicator.classList.add("hidden");
+          this.addMessage("bot", `An error occurred : ${ex}`);
         });
-
-        const resetBtn = this.shadowRoot.querySelector("#reset");
-        resetBtn.addEventListener("click", () => {
-            this._processReset();
-        });
-
-        const submitBtn = this.shadowRoot.querySelector("#submit");
-        submitBtn.addEventListener("click", () => {
-            this._processInput();
-        });
-
-        const closeChatboxBtn = this.shadowRoot.querySelector("#btn-close");
-        closeChatboxBtn.addEventListener("click", this._closeChatbox.bind(this));
     }
+  }
 
-    attributeChangedCallback(name, oldValue, newValue) {
-        console.log(
-            `Attribute ${name} has changed from ${oldValue} to ${newValue}.`,
-        );
-        const box = this.shadowRoot.querySelector(".card.mx-auto");
-        const msgCards = this.shadowRoot.querySelectorAll("chat-box-user-card, chat-box-bot-card");
-        const cardHeader = this.shadowRoot.querySelector(".card-header li");
-        if (name === "height") {
-            box.style.height = newValue;
-        } else if (name === "width") {
-            box.style.width = newValue;
-            msgCards.forEach(msgCard => {
-                msgCard.setAttribute("width", `calc(${newValue} - 100px)`);
-            });
-        } else if (name === "headertext") {
-            cardHeader.textContent = newValue;
-        }
-    }
+  _sendReset() {
+    return fetch(`/reset`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8'
+      }
+    }).then((response) => response.json()). //
+      catch((err) => { throw new Error(err); });
+  }
 
-    addMessage(sender, text) {
-        let messageElement;
-        if (sender === "user") {
-            messageElement = document.createElement('chat-box-user-card');
-            this.lastUserMessage = text;
-
-        } else if (sender === "bot") {
-            messageElement = document.createElement('chat-box-bot-card');
-            messageElement.addEventListener("chatboxbotcard-dislike-event", (evt) => {
-                console.log(`Last user message : ${this.lastUserMessage}`);
-                console.log(`Last bot reply : ${evt.detail.reply}`);
-            });
-        }
-
-        if (messageElement) {
-            const chatboxWidth = this.getAttribute("width") ?? "600px";
-            messageElement.setAttribute("width", `calc(${chatboxWidth} - 100px)`);
-            messageElement.setAttribute("message", text);
-            const messageContainer = this.shadowRoot.querySelector(".card-body");
-            messageContainer.appendChild(messageElement);
-            messageContainer.scrollTop = messageContainer.scrollHeight;
-        }
-    }
-
-    clearMessages() {
-        const messageContainer = this.shadowRoot.querySelector(".card-body");
-        messageContainer.replaceChildren([]);
-    }
-
-    _closeChatbox() {
-        this.classList.add("hidden");
-        const customEvent = new CustomEvent('chatbox-closed-event', {
-            bubbles: false, // Disable event to bubble up the DOM tree
-            composed: true, // Allow event to cross shadow DOM boundaries
-            detail: { id: this.id }
-        });
-        this.shadowRoot.dispatchEvent(customEvent);
-    };
-
-    _processReset() {
-        const busyIndicator = this.shadowRoot.querySelector(".busy-indicator");
-        busyIndicator.classList.remove("hidden");
-        this._sendReset(). //
-            then((reply) => {
-                busyIndicator.classList.add("hidden");
-                this.clearMessages();
-                this.addMessage("bot", reply.response);
-            }). //
-            catch((ex) => {
-                busyIndicator.classList.add("hidden");
-                this.addMessage("bot", `An error occurred : ${ex}`);
-            });
-    }
-
-    _processInput() {
-        const messageInput = this.shadowRoot.querySelector("#input");
-        const busyIndicator = this.shadowRoot.querySelector(".busy-indicator");
-        const msg = messageInput.value;
-        if (msg) {
-            this.addMessage("user", msg);
-            messageInput.value = "";
-            busyIndicator.classList.remove("hidden");
-            this._sendPrompt(msg). //
-                then((reply) => {
-                    busyIndicator.classList.add("hidden");
-                    this.addMessage("bot", reply.response);
-                }). //
-                catch((ex) => {
-                    busyIndicator.classList.add("hidden");
-                    this.addMessage("bot", `An error occurred : ${ex}`);
-                });
-        }
-    }
-
-    _sendReset() {
-        return fetch(`/reset`, {
-            method: 'POST',
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8'
-            }
-        }).then((response) => response.json()). //
-            catch((err) => { throw new Error(err); });
-    }
-
-    _sendPrompt(msg) {
-        return fetch(`/sendPrompt`, {
-            method: 'POST',
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8'
-            },
-            body: JSON.stringify({
-                prompt: msg
-            })
-        }).then((response) => response.json()). //
-            catch((err) => { throw new Error(err); });
-    }
+  _sendPrompt(msg) {
+    return fetch(`/sendPrompt`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8'
+      },
+      body: JSON.stringify({
+        prompt: msg
+      })
+    }).then((response) => response.json()). //
+      catch((err) => { throw new Error(err); });
+  }
 
 }
 

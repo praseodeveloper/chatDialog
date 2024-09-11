@@ -24,7 +24,7 @@ app.post("/sendPrompt", function (req, res) {
 
   const oOllama = new ollama.Ollama({ host: 'http://localhost:11434' });
   const oResponse = oOllama.chat({
-    model: 'llama3',
+    model: 'llama3.1',
     messages: messages,
     stream: false
   }).then(data => {
