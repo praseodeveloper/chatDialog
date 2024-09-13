@@ -4,65 +4,74 @@ import { fileURLToPath } from 'url';
 import { Ollama } from 'ollama';
 import VectorDBManager from './VectorDBManager.js';
 
-const app = express();
-app.use(express.json());
+const oApp = express();
+oApp.use(express.json());
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const port = 3000;
+const nPort = 3000;
 
-app.use(express.static('public'));
+oApp.use(express.static('public'));
 
 const oManager = new VectorDBManager();
 const oSetupPromise = oManager.setup("Collection1", "docs/");
-
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "public/chatPage.html"));
-});
-
-app.post("/reset", function (req, res) {
-  messages.splice(1); // Remove everything except system message
-  res.json({ "response": "Conversation has been cleared" });
-});
-
-const messages = [{
+const aMessages = [{
   role: 'system',
   content: `You are an assistant for question-answering tasks.
-  You will be provided with a context for every question.
-  If the context provides relevant inforomation, use it for formulating the answer.
-  Else, ignore the context completely and use your model weights to answer.
-  Do not tell the user when you ignore the context.
-  Keep the answer concise and start directly to the point.`
+  You will be provided with a context for each question.
+  If the context provides relevant information, use it for formulating the answer.
+  Else, use your model weights to answer.
+  Do not tell the user whether you used the supplied context or not.
+  Keep the answer formal, concise and directly to the point.`
 }];
 
-app.post("/sendPrompt", function (req, res) {
-  const sUserQuery = req?.body?.prompt;
-  const oResultPromise = oManager.queryCollection(5, [sUserQuery]); // top 5 chunks
-  oResultPromise
-    .then((oResult) => {
-      console.log(`Retrieved Context: ${JSON.stringify(oResult)}`);
-      const sContext = oResult.documents[0];
-      const sUserMessageContent = `Question: ${sUserQuery} Context: ${sContext} Answer: `;
-      console.log(sUserMessageContent);
-      messages.push({ role: 'user', content: sUserMessageContent });
+oApp.get("/", function (oRequest, oResponse) {
+  oResponse.sendFile(path.join(__dirname, "public/chatPage.html"));
+});
 
-      const oOllama = new Ollama({ host: 'http://localhost:11434' });
+oApp.post("/reset", function (oRequest, oResponse) {
+  aMessages.splice(1); // Remove everything except system message
+  oResponse.json({ "response": "Conversation has been cleared" });
+});
+
+oApp.post("/sendPrompt", function (oRequest, oResponse) {
+  const sUserQuery = oRequest?.body?.prompt;
+  // Only the first question in the conversation requires a context
+  const oGetContextPromise = aMessages.length === 1 ?
+    oManager.queryCollection(5, [sUserQuery]) :
+    Promise.resolve(null); // top 5 chunks
+
+  oGetContextPromise
+    .then((oContext) => {
+      let sUserMessageContent;
+      if (oContext) {
+        console.log(`Retrieved Context: ${JSON.stringify(oContext)}`);
+        const sContext = oContext.documents[0];
+        sUserMessageContent = `Question: ${sUserQuery} Context: ${sContext} Answer: `;
+      } else {
+        sUserMessageContent = `Question: ${sUserQuery} Answer: `;
+      }
+      console.log(sUserMessageContent);
+      aMessages.push({role: 'user', content: sUserMessageContent});
+
+      const oOllama = new Ollama({host: 'http://localhost:11434'});
       oOllama.chat({
         model: 'llama3',
-        messages: messages,
+        messages: aMessages,
         stream: false
-      }).then(data => {
-        console.log(data);
-        messages.push(data.message);
-        res.json({ "response": data.message?.content });
       })
-        .catch((oError) => {
-          console.error('Error:', oError);
-          res.status(400).send({
-            message: oError
-          });
+        .then(oData => {
+          console.log(oData);
+          aMessages.push(oData.message);
+          oResponse.json({"response": oData.message?.content});
         });
+    })
+    .catch((oError) => {
+      console.error('Error:', oError);
+      oResponse.status(400).send({
+        message: oError
+      });
     });
 });
 
-app.listen(port, () => {
-  oSetupPromise.then(() => console.log(`Webserver running on port ${port}`));
+oApp.listen(nPort, () => {
+  oSetupPromise.then(() => console.log(`Webserver running on port ${nPort}`));
 });
